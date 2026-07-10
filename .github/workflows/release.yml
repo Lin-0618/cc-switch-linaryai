@@ -242,6 +242,14 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           set -euo pipefail
+          # Tauri passes an explicitly supplied empty identity through to
+          # codesign, which fails before an unsigned fallback bundle can be
+          # produced.  Ad-hoc signing keeps the macOS artifact buildable when
+          # this fork has no Apple Developer certificate configured.
+          if [ "${HAS_APPLE_CERTIFICATE:-false}" != "true" ]; then
+            export APPLE_SIGNING_IDENTITY="-"
+            echo "No Apple certificate configured; building an ad-hoc signed macOS artifact."
+          fi
           max_attempts=3
           for attempt in $(seq 1 "$max_attempts"); do
             echo "=== macOS build/notarization attempt ${attempt}/${max_attempts} ==="
