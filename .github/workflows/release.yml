@@ -16,6 +16,9 @@ jobs:
   release:
     runs-on: ${{ matrix.os }}
     environment: release
+    env:
+      HAS_APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE != '' }}
+      HAS_APPLE_ID: ${{ secrets.APPLE_ID != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -187,7 +190,7 @@ jobs:
           echo "✅ Tauri signing key prepared"
 
       - name: Import Apple signing certificate
-        if: runner.os == 'macOS' && secrets.APPLE_CERTIFICATE != ''
+        if: runner.os == 'macOS' && env.HAS_APPLE_CERTIFICATE == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -350,7 +353,7 @@ jobs:
           echo "✅ Styled DMG created: $NEW_DMG"
 
       - name: Notarize macOS DMG
-        if: runner.os == 'macOS' && secrets.APPLE_CERTIFICATE != '' && secrets.APPLE_ID != ''
+        if: runner.os == 'macOS' && env.HAS_APPLE_CERTIFICATE == 'true' && env.HAS_APPLE_ID == 'true'
         shell: bash
         timeout-minutes: 30
         env:
@@ -392,7 +395,7 @@ jobs:
           done
 
       - name: Verify macOS code signing and notarization
-        if: runner.os == 'macOS' && secrets.APPLE_CERTIFICATE != '' && secrets.APPLE_ID != ''
+        if: runner.os == 'macOS' && env.HAS_APPLE_CERTIFICATE == 'true' && env.HAS_APPLE_ID == 'true'
         shell: bash
         run: |
           set -euo pipefail
