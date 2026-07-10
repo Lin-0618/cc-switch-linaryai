@@ -218,6 +218,7 @@ fn test_build_gemini_provider_with_model() {
         usage_access_token: None,
         usage_user_id: None,
         usage_auto_interval: None,
+        ..Default::default()
     };
 
     let provider = build_provider_from_request(&AppType::Gemini, &request).unwrap();
@@ -271,6 +272,7 @@ fn test_build_gemini_provider_without_model() {
         usage_access_token: None,
         usage_user_id: None,
         usage_auto_interval: None,
+        ..Default::default()
     };
 
     let provider = build_provider_from_request(&AppType::Gemini, &request).unwrap();
@@ -317,6 +319,7 @@ fn test_deeplink_usage_script_does_not_copy_provider_credentials() {
         usage_access_token: None,
         usage_user_id: None,
         usage_auto_interval: None,
+        ..Default::default()
     };
 
     let provider = build_provider_from_request(&AppType::Claude, &request).unwrap();
@@ -366,6 +369,7 @@ fn test_deeplink_usage_script_omits_explicit_credentials_that_match_provider() {
         usage_access_token: None,
         usage_user_id: None,
         usage_auto_interval: None,
+        ..Default::default()
     };
 
     let provider = build_provider_from_request(&AppType::Claude, &request).unwrap();
@@ -414,6 +418,7 @@ fn test_deeplink_usage_script_preserves_distinct_usage_credentials() {
         usage_access_token: None,
         usage_user_id: None,
         usage_auto_interval: None,
+        ..Default::default()
     };
 
     let provider = build_provider_from_request(&AppType::Claude, &request).unwrap();
@@ -467,6 +472,7 @@ fn test_parse_and_merge_config_claude() {
         usage_access_token: None,
         usage_user_id: None,
         usage_auto_interval: None,
+        ..Default::default()
     };
 
     let merged = parse_and_merge_config(&request).unwrap();
@@ -558,6 +564,7 @@ fn test_parse_and_merge_config_url_override() {
         usage_access_token: None,
         usage_user_id: None,
         usage_auto_interval: None,
+        ..Default::default()
     };
 
     let merged = parse_and_merge_config(&request).unwrap();
@@ -621,6 +628,7 @@ fn test_build_claude_provider_preserves_custom_env_fields() {
         usage_access_token: None,
         usage_user_id: None,
         usage_auto_interval: None,
+        ..Default::default()
     };
 
     let provider = build_provider_from_request(&AppType::Claude, &request).unwrap();
@@ -676,6 +684,7 @@ fn test_build_claude_provider_without_config_unchanged() {
         usage_access_token: None,
         usage_user_id: None,
         usage_auto_interval: None,
+        ..Default::default()
     };
 
     let provider = build_provider_from_request(&AppType::Claude, &request).unwrap();
