@@ -60,6 +60,21 @@ pub struct DeepLinkImportRequest {
     /// API key
     #[serde(skip_serializing_if = "Option::is_none")]
     pub api_key: Option<String>,
+    /// Stable Codex model provider id (for example, "linaryai")
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub provider_id: Option<String>,
+    /// Environment variable used by Codex to read this provider's API key
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub env_key: Option<String>,
+    /// Whether Codex should use OpenAI/ChatGPT authentication for this provider
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub requires_openai_auth: Option<bool>,
+    /// Simplified Codex model catalog: { "models": [{ "model", "displayName"? }] }
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model_catalog: Option<serde_json::Value>,
+    /// Verify the selected model against GET /v1/models before importing
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub verify_models: Option<bool>,
     /// Optional provider icon name (maps to built-in SVG)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,

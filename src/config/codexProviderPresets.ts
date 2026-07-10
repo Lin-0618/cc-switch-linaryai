@@ -118,6 +118,37 @@ export const codexProviderPresets: CodexProviderPreset[] = [
     iconColor: "#00A67E",
   },
   {
+    name: "LinaryAI",
+    websiteUrl: "https://api.linaryai.top",
+    apiKeyUrl: "https://api.linaryai.top/console/token",
+    category: "third_party",
+    auth: generateThirdPartyAuth(""),
+    config: `model_provider = "linaryai"
+model = "gpt-5.6-terra"
+model_reasoning_effort = "high"
+disable_response_storage = true
+
+[model_providers.linaryai]
+name = "LinaryAI"
+base_url = "https://api.linaryai.top/v1"
+wire_api = "responses"
+env_key = "LINARYAI_API_KEY"
+experimental_bearer_token = ""
+requires_openai_auth = false`,
+    modelCatalog: modelCatalog([
+      { model: "gpt-5.6-terra", displayName: "GPT-5.6 Terra · 日常平衡" },
+      { model: "gpt-5.6-sol", displayName: "GPT-5.6 Sol · 高能力" },
+      { model: "gpt-5.6-luna", displayName: "GPT-5.6 Luna · 更快更经济" },
+    ]),
+    theme: {
+      icon: "codex",
+      backgroundColor: "#0B0F0D",
+      textColor: "#FFFFFF",
+    },
+    icon: "openai",
+    iconColor: "#19C37D",
+  },
+  {
     name: "Shengsuanyun",
     nameKey: "providerForm.presets.shengsuanyun",
     websiteUrl: "https://www.shengsuanyun.com/?from=CH_4HHXMRYF",

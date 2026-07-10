@@ -15,6 +15,11 @@ export interface DeepLinkImportRequest {
   homepage?: string;
   endpoint?: string;
   apiKey?: string;
+  providerId?: string;
+  envKey?: string;
+  requiresOpenaiAuth?: boolean;
+  modelCatalog?: Record<string, unknown>;
+  verifyModels?: boolean;
   icon?: string;
   model?: string;
   notes?: string;

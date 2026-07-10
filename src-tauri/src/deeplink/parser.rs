@@ -2,7 +2,7 @@
 //!
 //! Parses ccswitch:// URLs into DeepLinkImportRequest structures.
 
-use super::utils::validate_url;
+use super::utils::{decode_base64_param, validate_url};
 use super::DeepLinkImportRequest;
 use crate::error::AppError;
 use std::collections::HashMap;
@@ -97,6 +97,23 @@ fn parse_provider_deeplink(
     let homepage = params.get("homepage").cloned();
     let endpoint = params.get("endpoint").cloned();
     let api_key = params.get("apiKey").cloned();
+    let provider_id = params.get("providerId").cloned();
+    let env_key = params.get("envKey").cloned();
+    let requires_openai_auth = params
+        .get("requiresOpenaiAuth")
+        .and_then(|v| v.parse::<bool>().ok());
+    let verify_models = params
+        .get("verifyModels")
+        .and_then(|v| v.parse::<bool>().ok());
+    let model_catalog = params
+        .get("modelCatalog")
+        .map(|raw| {
+            let decoded = decode_base64_param("modelCatalog", raw)?;
+            serde_json::from_slice::<serde_json::Value>(&decoded).map_err(|e| {
+                AppError::InvalidInput(format!("Invalid modelCatalog JSON: {e}"))
+            })
+        })
+        .transpose()?;
 
     // Validate URLs only if provided
     if let Some(ref hp) = homepage {
@@ -151,6 +168,11 @@ fn parse_provider_deeplink(
         homepage,
         endpoint,
         api_key,
+        provider_id,
+        env_key,
+        requires_openai_auth,
+        model_catalog,
+        verify_models,
         icon,
         model,
         notes,
@@ -224,6 +246,11 @@ fn parse_prompt_deeplink(
         homepage: None,
         endpoint: None,
         api_key: None,
+        provider_id: None,
+        env_key: None,
+        requires_openai_auth: None,
+        model_catalog: None,
+        verify_models: None,
         model: None,
         notes: None,
         haiku_model: None,
@@ -290,6 +317,11 @@ fn parse_mcp_deeplink(
         homepage: None,
         endpoint: None,
         api_key: None,
+        provider_id: None,
+        env_key: None,
+        requires_openai_auth: None,
+        model_catalog: None,
+        verify_models: None,
         model: None,
         notes: None,
         haiku_model: None,
@@ -345,6 +377,11 @@ fn parse_skill_deeplink(
         homepage: None,
         endpoint: None,
         api_key: None,
+        provider_id: None,
+        env_key: None,
+        requires_openai_auth: None,
+        model_catalog: None,
+        verify_models: None,
         model: None,
         notes: None,
         haiku_model: None,

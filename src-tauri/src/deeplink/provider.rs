@@ -400,31 +400,68 @@ fn build_codex_settings(request: &DeepLinkImportRequest) -> serde_json::Value {
         .trim_end_matches('/')
         .to_string();
 
+    let provider_id = request
+        .provider_id
+        .as_deref()
+        .unwrap_or("custom")
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '_')
+        .collect::<String>();
+    let provider_id = if provider_id.is_empty() {
+        "custom".to_string()
+    } else {
+        provider_id
+    };
+    let requires_openai_auth = request.requires_openai_auth.unwrap_or(true);
+    let env_key = request
+        .env_key
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty());
+    let api_key = request.api_key.as_deref().unwrap_or_default();
+
     let provider_display_name = toml_edit::Value::from(provider_display_name.as_str()).to_string();
     let model_name = toml_edit::Value::from(model_name.as_str()).to_string();
     let endpoint = toml_edit::Value::from(endpoint.as_str()).to_string();
 
+    let mut auth_lines = format!("requires_openai_auth = {requires_openai_auth}\n");
+    if let Some(env_key) = env_key {
+        let env_key = toml_edit::Value::from(env_key).to_string();
+        auth_lines.push_str(&format!("env_key = {env_key}\n"));
+    }
+    // CC Switch keeps this local fallback in sync with its stored credential.
+    // It prevents GUI-launched Codex from falling back to ChatGPT auth when the
+    // desktop process has not inherited a freshly written environment variable.
+    if !requires_openai_auth && !api_key.is_empty() {
+        let token = toml_edit::Value::from(api_key).to_string();
+        auth_lines.push_str(&format!("experimental_bearer_token = {token}\n"));
+    }
+
     // Build config.toml content
     let config_toml = format!(
-        r#"model_provider = "custom"
+        r#"model_provider = "{provider_id}"
 model = {model_name}
 model_reasoning_effort = "high"
 disable_response_storage = true
 
-[model_providers.custom]
+[model_providers.{provider_id}]
 name = {provider_display_name}
 base_url = {endpoint}
 wire_api = "responses"
-requires_openai_auth = true
+{auth_lines}
 "#
     );
 
-    json!({
+    let mut settings = json!({
         "auth": {
             "OPENAI_API_KEY": request.api_key,
         },
         "config": config_toml
-    })
+    });
+    if let Some(model_catalog) = &request.model_catalog {
+        settings["modelCatalog"] = model_catalog.clone();
+    }
+    settings
 }
 
 /// Build Gemini settings configuration
@@ -934,6 +971,43 @@ mod tests {
                 .and_then(|value| value.as_str()),
             Some("https://api.example.com/v1")
         );
+    }
+
+    #[test]
+    fn build_codex_settings_supports_linaryai_env_auth_and_catalog() {
+        let catalog = json!({
+            "models": [
+                { "model": "gpt-5.6-terra", "displayName": "GPT-5.6 Terra" },
+                { "model": "gpt-5.6-sol", "displayName": "GPT-5.6 Sol" },
+                { "model": "gpt-5.6-luna", "displayName": "GPT-5.6 Luna" }
+            ]
+        });
+        let request = DeepLinkImportRequest {
+            resource: "provider".to_string(),
+            app: Some("codex".to_string()),
+            name: Some("LinaryAI".to_string()),
+            endpoint: Some("https://api.linaryai.top/v1".to_string()),
+            api_key: Some("sk-test".to_string()),
+            provider_id: Some("linaryai".to_string()),
+            env_key: Some("LINARYAI_API_KEY".to_string()),
+            requires_openai_auth: Some(false),
+            model: Some("gpt-5.6-terra".to_string()),
+            model_catalog: Some(catalog.clone()),
+            ..Default::default()
+        };
+
+        let settings = build_codex_settings(&request);
+        let config_text = settings.get("config").and_then(|v| v.as_str()).unwrap();
+        let parsed: toml::Value = toml::from_str(config_text).unwrap();
+        assert_eq!(parsed.get("model_provider").and_then(|v| v.as_str()), Some("linaryai"));
+        let provider = parsed
+            .get("model_providers")
+            .and_then(|v| v.get("linaryai"))
+            .unwrap();
+        assert_eq!(provider.get("env_key").and_then(|v| v.as_str()), Some("LINARYAI_API_KEY"));
+        assert_eq!(provider.get("requires_openai_auth").and_then(|v| v.as_bool()), Some(false));
+        assert_eq!(provider.get("experimental_bearer_token").and_then(|v| v.as_str()), Some("sk-test"));
+        assert_eq!(settings.get("modelCatalog"), Some(&catalog));
     }
 
     #[test]

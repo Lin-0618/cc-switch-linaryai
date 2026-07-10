@@ -51,6 +51,42 @@ pub async fn import_from_deeplink_unified(
 
     match request.resource.as_str() {
         "provider" => {
+            if request.verify_models.unwrap_or(false)
+                && request.app.as_deref() == Some("codex")
+            {
+                let endpoint = request
+                    .endpoint
+                    .as_deref()
+                    .and_then(|value| value.split(',').next())
+                    .map(str::trim)
+                    .filter(|value| !value.is_empty())
+                    .ok_or_else(|| "Endpoint is required for model verification".to_string())?;
+                let api_key = request
+                    .api_key
+                    .as_deref()
+                    .map(str::trim)
+                    .filter(|value| !value.is_empty())
+                    .ok_or_else(|| "API key is required for model verification".to_string())?;
+                let selected_model = request
+                    .model
+                    .as_deref()
+                    .map(str::trim)
+                    .filter(|value| !value.is_empty())
+                    .ok_or_else(|| "Model is required for model verification".to_string())?;
+                let models = crate::services::model_fetch::fetch_models(
+                    endpoint,
+                    api_key,
+                    false,
+                    None,
+                    None,
+                )
+                .await?;
+                if !models.iter().any(|model| model.id == selected_model) {
+                    return Err(format!(
+                        "Selected model '{selected_model}' was not returned by {endpoint}/models; existing configuration was not changed"
+                    ));
+                }
+            }
             let provider_id =
                 import_provider_from_deeplink(&state, request).map_err(|e| e.to_string())?;
             Ok(serde_json::json!({

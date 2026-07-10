@@ -88,6 +88,28 @@ fn test_parse_deeplink_with_notes() {
 }
 
 #[test]
+fn test_parse_linaryai_codex_auth_and_catalog() {
+    let catalog = serde_json::json!({
+        "models": [
+            { "model": "gpt-5.6-terra", "displayName": "GPT-5.6 Terra" },
+            { "model": "gpt-5.6-sol", "displayName": "GPT-5.6 Sol" },
+            { "model": "gpt-5.6-luna", "displayName": "GPT-5.6 Luna" }
+        ]
+    });
+    let encoded = BASE64_URL_SAFE_NO_PAD.encode(catalog.to_string());
+    let url = format!(
+        "ccswitch://v1/import?resource=provider&app=codex&name=LinaryAI&endpoint=https%3A%2F%2Fapi.linaryai.top%2Fv1&apiKey=sk-test&model=gpt-5.6-terra&providerId=linaryai&envKey=LINARYAI_API_KEY&requiresOpenaiAuth=false&verifyModels=true&modelCatalog={encoded}"
+    );
+
+    let request = parse_deeplink_url(&url).unwrap();
+    assert_eq!(request.provider_id.as_deref(), Some("linaryai"));
+    assert_eq!(request.env_key.as_deref(), Some("LINARYAI_API_KEY"));
+    assert_eq!(request.requires_openai_auth, Some(false));
+    assert_eq!(request.verify_models, Some(true));
+    assert_eq!(request.model_catalog, Some(catalog));
+}
+
+#[test]
 fn test_parse_invalid_scheme() {
     let url = "https://v1/import?resource=provider&app=claude&name=Test";
 
