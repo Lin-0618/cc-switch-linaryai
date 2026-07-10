@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "CC Switch",
-  "version": "3.16.6",
+  "version": "3.16.7",
   "identifier": "com.ccswitch.desktop",
   "build": {
     "frontendDist": "../dist",
@@ -60,7 +60,7 @@
       }
     },
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEM4MDI4QzlBNTczOTI4RTMKUldUaktEbFhtb3dDeUM5US9kT0FmdGR5Ti9vQzcwa2dTMlpibDVDUmQ2M0VGTzVOWnd0SGpFVlEK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDlCMjhDQTU0OTI0NDU2QTIKUldTaVZrU1NWTW9vbTE2Z3pubFVZQTZCYXkrOXh4ZGh2WE4vSXMrY0hXSnYwTWxWdU56K29oU0gK",
       "endpoints": [
         "https://github.com/farion1231/cc-switch/releases/latest/download/latest.json"
       ]
