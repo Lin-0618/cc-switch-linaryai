@@ -109,9 +109,8 @@ fn parse_provider_deeplink(
         .get("modelCatalog")
         .map(|raw| {
             let decoded = decode_base64_param("modelCatalog", raw)?;
-            serde_json::from_slice::<serde_json::Value>(&decoded).map_err(|e| {
-                AppError::InvalidInput(format!("Invalid modelCatalog JSON: {e}"))
-            })
+            serde_json::from_slice::<serde_json::Value>(&decoded)
+                .map_err(|e| AppError::InvalidInput(format!("Invalid modelCatalog JSON: {e}")))
         })
         .transpose()?;
 

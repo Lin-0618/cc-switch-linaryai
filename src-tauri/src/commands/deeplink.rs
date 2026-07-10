@@ -51,9 +51,7 @@ pub async fn import_from_deeplink_unified(
 
     match request.resource.as_str() {
         "provider" => {
-            if request.verify_models.unwrap_or(false)
-                && request.app.as_deref() == Some("codex")
-            {
+            if request.verify_models.unwrap_or(false) && request.app.as_deref() == Some("codex") {
                 let endpoint = request
                     .endpoint
                     .as_deref()
@@ -74,11 +72,7 @@ pub async fn import_from_deeplink_unified(
                     .filter(|value| !value.is_empty())
                     .ok_or_else(|| "Model is required for model verification".to_string())?;
                 let models = crate::services::model_fetch::fetch_models(
-                    endpoint,
-                    api_key,
-                    false,
-                    None,
-                    None,
+                    endpoint, api_key, false, None, None,
                 )
                 .await?;
                 if !models.iter().any(|model| model.id == selected_model) {

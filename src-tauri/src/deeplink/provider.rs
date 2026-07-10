@@ -999,14 +999,30 @@ mod tests {
         let settings = build_codex_settings(&request);
         let config_text = settings.get("config").and_then(|v| v.as_str()).unwrap();
         let parsed: toml::Value = toml::from_str(config_text).unwrap();
-        assert_eq!(parsed.get("model_provider").and_then(|v| v.as_str()), Some("linaryai"));
+        assert_eq!(
+            parsed.get("model_provider").and_then(|v| v.as_str()),
+            Some("linaryai")
+        );
         let provider = parsed
             .get("model_providers")
             .and_then(|v| v.get("linaryai"))
             .unwrap();
-        assert_eq!(provider.get("env_key").and_then(|v| v.as_str()), Some("LINARYAI_API_KEY"));
-        assert_eq!(provider.get("requires_openai_auth").and_then(|v| v.as_bool()), Some(false));
-        assert_eq!(provider.get("experimental_bearer_token").and_then(|v| v.as_str()), Some("sk-test"));
+        assert_eq!(
+            provider.get("env_key").and_then(|v| v.as_str()),
+            Some("LINARYAI_API_KEY")
+        );
+        assert_eq!(
+            provider
+                .get("requires_openai_auth")
+                .and_then(|v| v.as_bool()),
+            Some(false)
+        );
+        assert_eq!(
+            provider
+                .get("experimental_bearer_token")
+                .and_then(|v| v.as_str()),
+            Some("sk-test")
+        );
         assert_eq!(settings.get("modelCatalog"), Some(&catalog));
     }
 
